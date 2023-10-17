@@ -9,7 +9,9 @@ const io = new Server(server);
 io.on('connection', (socket)=>{
     console.log('socket', socket);
 
-    socket.on('join', ()=>{ })
+    socket.on('join', (options, callback)=>{ 
+         
+    })
     socket.on('sendMassage', () => { })
     socket.on('disconnect', () => { 
         console.log('socket disconnected', socket.id)
