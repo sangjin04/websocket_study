@@ -1,7 +1,20 @@
 const express = require('express');
-
 const app = express();
 
+const http = require('http')
+const {Server} = require("socker.io");
+const server = http.createServer(app);
+const io = new Server(server);
+
+io.on('connection', (socket)=>{
+    console.log('socket', socket);
+
+    socket.on('join', ()=>{ })
+    socket.on('sendMassage', () => { })
+    socket.on('disconnect', () => { 
+        console.log('socket disconnected', socket.id)
+     })
+})
 
 const publicDirectoryPath = path.join(_dirname, '../public');
 app.use(express.static(path.join(__dirname, '../public')))
