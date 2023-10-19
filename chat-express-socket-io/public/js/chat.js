@@ -1,38 +1,68 @@
 const socket = io();
 
 const query = new URLSearchParams(location.search);
-const username = query.get('username');
-const room = query.get('room');
-console.log(socket);
 
-socket.emit('join', {username, room}, (error) => {
-    if(error) {
+const username = query.get('username');
+
+const room = query.get('room');
+
+
+socket.emit('join', { username, room }, (error) => {
+    if (error) {
         alert(error);
-        location.href = '/'; 
+        location.href = '/';
     }
 });
 
 const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML;
 
-socket.on('roomData', ({room, users}) => {
+socket.on('roomData', ({ room, users }) => {
     const html = Mustache.render(sidebarTemplate, {
         room,
         users
     })
 
     document.querySelector('#sidebar').innerHTML = html;
-
 })
+
+const messages = document.querySelector('#messages');
 const messageTemplate = document.querySelector('#message-template').innerHTML;
 socket.on('message', (message) => {
-    const html = Mustach.render(messageTemplate, {
-        username:MediaKeyMessageEvent.username,
-        message:message.text,
-        createdAt:message.createdAt
+
+    const html = Mustache.render(messageTemplate, {
+        username: message.username,
+        message: message.text,
+        createdAt: moment(message.createdAt).format('h:mm a')
     })
-    message.insertAdjacentHTML('beforeend', html);
+
+    messages.insertAdjacentHTML('beforeend', html);
     scrollToBottom();
 })
 
+function scrollToBottom() {
+    messages.scrollTop = messages.scrollHeight;
+}
 
-socket.on('message')
+
+const messageForm = document.querySelector('#message-form');
+const messageFormInput = messageForm.querySelector('input');
+const messageFormButton = messageForm.querySelector('button');
+
+messageForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    messageFormButton.setAttribute('disabled', 'disabled');
+
+    const message = e.target.elements.message.value;
+
+    socket.emit('sendMessage', message, (error) => {
+        messageFormButton.removeAttribute('disabled');
+        messageFormInput.value = '';
+        messageFormInput.focus();
+
+        if(error) {
+            return console.log(error);
+        }
+    })
+
+})
